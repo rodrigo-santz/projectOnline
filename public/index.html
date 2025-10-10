@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Robô Verificador de Links</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Header com container-fluid para ocupar 100% -->
+    <div class="container-fluid p-0">
+        <header class="header">
+            <div class="robot-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1>🤖 Robô Verificador de Links</h1>
+            <p class="subtitle">Descubra links quebrados em qualquer website</p>
+        </header>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+        <div class="container">
+            <div class="row">
+                <!-- Coluna da Sidebar -->
+                <div class="col-12 col-md-4 col-lg-4">
+                    <!-- Overlay para fechar sidebar no mobile -->
+                    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+                    <!-- Seção de Monitoramento Lateral -->
+                    <div class="monitoring-sidebar" id="monitoringSidebar">
+                        <div class="sidebar-header" onclick="toggleMobileSidebar()">
+                            <h3><i class="fas fa-heart"></i> Sites Favoritos</h3>
+                            <button class="toggle-sidebar" onclick="toggleSidebar()">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                        </div>
+
+                        <div class="sidebar-content">
+                            <!-- Accordion de Filtros -->
+                            <div class="filters-accordion">
+                                <div class="accordion-header" onclick="toggleFiltersAccordion()">
+                                    <i class="fas fa-filter"></i>
+                                    <span>FILTROS</span>
+                                    <i class="fas fa-chevron-down accordion-icon" id="accordionIcon"></i>
+                                </div>
+                                <div class="accordion-content" id="filtersContent">
+                                    <div class="group-tabs">
+                                        <div class="tab active" data-group="todos" onclick="filterByGroup('todos')">
+                                            <i class="fas fa-globe"></i> TODOS
+                                        </div>
+                                        <div class="tab" data-group="home" onclick="filterByGroup('home')">
+                                            <i class="fas fa-home"></i> HOME
+                                        </div>
+                                        <div class="tab" data-group="produtos" onclick="filterByGroup('produtos')">
+                                            <i class="fas fa-shopping-cart"></i> PRODUTOS
+                                        </div>
+                                        <div class="tab" data-group="categorias" onclick="filterByGroup('categorias')">
+                                            <i class="fas fa-folder"></i> CATEGORIAS
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Indicador do Filtro Ativo -->
+                            <div class="active-filter-indicator" id="activeFilterIndicator">
+                                <div class="filter-info">
+                                    <span class="filter-label">Visualizando:</span>
+                                    <span class="filter-value" id="activeFilterValue">
+                                        <i class="fas fa-globe"></i> TODOS
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Subfiltros -->
+                            <div class="subfilters-container" id="subfiltersContainer" style="display: none;">
+                                <div class="subfilters-header">
+                                    <span>Subfiltros:</span>
+                                </div>
+                                <div class="subfilters-list" id="subfiltersList">
+                                    <!-- Subfiltros serão adicionados dinamicamente -->
+                                </div>
+                            </div>
+
+                            <div class="add-favorite-container">
+                                <div class="add-favorite-header">
+                                    <button type="button" class="btn-add-favorite" onclick="toggleFavoriteForm()">
+                                        <i class="fas fa-plus"></i> Adicionar Favorito
+                                    </button>
+                                    <button type="button" class="btn-edit-filters-compact"
+                                        onclick="openEditFiltersModal()" title="Editar Filtros">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="add-favorite-form" id="addFavoriteForm" style="display: none;">
+                                    <div class="favorite-input-group">
+                                        <input type="url" id="favoriteUrlInput" placeholder="https://site-favorito.com"
+                                            class="favorite-input">
+                                        <select id="groupSelect" class="group-select"
+                                            onchange="updateSubfilterOptions(); updatePlaceholderStyles();">
+                                            <option value="" selected>Selecione o grupo</option>
+                                            <!-- Grupos serão carregados dinamicamente pelo JavaScript -->
+                                        </select>
+                                        <select id="subfilterSelect" class="group-select"
+                                            onchange="updatePlaceholderStyles();">
+                                            <option value="" selected>Sem subfiltro</option>
+                                            <!-- Sub-filtros serão carregados dinamicamente pelo JavaScript -->
+                                        </select>
+                                        <button type="button" onclick="addFavoriteUrl()" class="add-favorite-btn">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="monitoring-settings">
+                                        <label class="monitoring-toggle">
+                                            <input type="checkbox" id="autoMonitoring"
+                                                onchange="toggleAutoMonitoring()">
+                                            <span class="toggle-text">🕐 Verificação automática (1h)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="favorite-sites" id="favoriteSites">
+                                <!-- Sites favoritos serão adicionados aqui dinamicamente -->
+                            </div>
+
+                            <div class="monitoring-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Próxima verificação:</span>
+                                    <span class="stat-value" id="nextCheck">--:--</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total monitorado:</span>
+                                    <span class="stat-value" id="totalMonitored">0</span>
+                                </div>
+                                <div class="check-all-container">
+                                    <button onclick="verificarTodosFiltro()" class="btn-check-all" id="checkAllBtn"
+                                        title="Verificar todos do filtro ativo">
+                                        <i class="fas fa-sync-alt"></i>
+                                        <span id="checkAllText">Verificar Todos</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- Fecha col da sidebar -->
+
+                <!-- Coluna do Conteúdo Principal -->
+                <div class="col-12 col-md-8 col-lg-8">
+                    <!-- Conteúdo Principal -->
+                    <div class="main-area">
+                        <div class="input-section">
+                            <form id="linkForm" class="link-form">
+                                <div class="input-group">
+                                    <div class="input-container">
+                                        <i class="fas fa-link input-icon"></i>
+                                        <input type="url" id="urlInput" placeholder="https://exemplo.com" required
+                                            class="url-input">
+                                    </div>
+                                    <button type="submit" class="check-button" id="checkButton">
+                                        <i class="fas fa-search"></i>
+                                        Verificar Links
+                                    </button>
+                                </div>
+
+                                <div class="options">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="checkExternal">
+                                        <span class="checkmark"></span>
+                                        Verificar links externos também
+                                    </label>
+
+                                    <div class="max-links">
+                                        <label for="maxLinks">Máximo de links:</label>
+                                        <select id="maxLinks">
+                                            <option value="25">25</option>
+                                            <option value="50" selected>50</option>
+                                            <option value="100">100</option>
+                                            <option value="200">200</option>
+                                            <option value="unlimited">🚀 Ilimitado</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="unlimited-warning" id="unlimitedWarning" style="display: none;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Modo Ilimitado:</strong> Esta opção verificará TODOS os links encontrados na
+                                    página.
+                                    Pode demorar mais tempo para sites com muitos links.
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="loading" id="loading" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>🤖 Analisando website e verificando links...</p>
+                            <div class="progress-info" id="progressInfo"></div>
+                        </div>
+
+                        <div class="results" id="results" style="display: none;">
+                            <div class="report-header">
+                                <h2><i class="fas fa-chart-line"></i> Relatório de Verificação</h2>
+                                <div class="report-actions">
+                                    <button class="btn-secondary" onclick="exportReport()">
+                                        <i class="fas fa-download"></i> Exportar
+                                    </button>
+                                    <button class="btn-secondary btn-danger" onclick="clearSavedReport()">
+                                        <i class="fas fa-trash"></i> Limpar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="summary-cards">
+                                <div class="summary-card total">
+                                    <div class="card-icon">
+                                        <i class="fas fa-globe"></i>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 id="totalLinks">0</h3>
+                                        <p>Links Encontrados</p>
+                                    </div>
+                                </div>
+
+                                <div class="summary-card working">
+                                    <div class="card-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 id="workingLinks">0</h3>
+                                        <p>Links Funcionando</p>
+                                    </div>
+                                </div>
+
+                                <div class="summary-card broken">
+                                    <div class="card-icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 id="brokenLinks">0</h3>
+                                        <p>Links Quebrados</p>
+                                    </div>
+                                </div>
+
+                                <div class="summary-card score">
+                                    <div class="card-icon">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 id="healthScore">0%</h3>
+                                        <p>Saúde do Site</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="detailed-results">
+                                <div class="tabs">
+                                    <button class="tab-button active" onclick="showTab('broken-tab')">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Links Quebrados (<span id="brokenCount">0</span>)
+                                    </button>
+                                    <button class="tab-button" onclick="showTab('working-tab')">
+                                        <i class="fas fa-check-circle"></i>
+                                        Links Funcionando (<span id="workingCount">0</span>)
+                                    </button>
+                                    <button class="tab-button" onclick="showTab('all-tab')">
+                                        <i class="fas fa-list"></i>
+                                        Todos os Links
+                                    </button>
+                                </div>
+
+                                <div id="broken-tab" class="tab-content active">
+                                    <div class="links-list" id="brokenLinksList"></div>
+                                </div>
+
+                                <div id="working-tab" class="tab-content">
+                                    <div class="links-list" id="workingLinksList"></div>
+                                </div>
+
+                                <div id="all-tab" class="tab-content">
+                                    <div class="links-list" id="allLinksList"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="error-message" id="errorMessage" style="display: none;">
+                            <div class="error-content">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <h3>Ops! Algo deu errado</h3>
+                                <p id="errorText"></p>
+                                <button class="btn-primary" onclick="hideError()">Tentar Novamente</button>
+                            </div>
+                        </div>
+                    </div> <!-- Fecha main-area -->
+                </div> <!-- Fecha col do conteúdo principal -->
+            </div> <!-- Fecha row -->
+        </div> <!-- Fecha container -->
+    </main>
+
+    <footer class="footer">
+        <p>🤖 Robô Verificador de Links - Mantenha seu site sempre saudável!</p>
+        <div class="footer-links">
+            <a href="#" onclick="showInfo()">Como funciona?</a>
+        </div>
+    </footer>
+    </div>
+
+    <!-- Modal de Informações -->
+    <div id="infoModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>🤖 Como funciona o Robô?</h2>
+            <div class="info-content">
+                <div class="info-step">
+                    <i class="fas fa-search"></i>
+                    <h3>1. Análise da Página</h3>
+                    <p>O robô acessa a URL fornecida e examina todo o código HTML em busca de links.</p>
+                </div>
+                <div class="info-step">
+                    <i class="fas fa-link"></i>
+                    <h3>2. Extração de Links</h3>
+                    <p>Identifica todos os tipos de links: páginas, imagens, CSS, JavaScript e recursos externos.</p>
+                </div>
+                <div class="info-step">
+                    <i class="fas fa-check-double"></i>
+                    <h3>3. Verificação</h3>
+                    <p>Testa cada link para verificar se está acessível e retorna o status HTTP.</p>
+                </div>
+                <div class="info-step">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>4. Relatório</h3>
+                    <p>Gera um relatório completo com estatísticas e detalhes de cada link verificado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    </main>
+
+    <!-- Modal de Editar Filtros -->
+    <div id="editFiltersModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-filter"></i> Gerenciar Filtros</h2>
+                <span class="close" onclick="closeEditFiltersModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="filter-section">
+                    <h3>Filtros Existentes</h3>
+                    <div id="existingFiltersList" class="existing-filters">
+                        <!-- Lista de filtros existentes será carregada aqui -->
+                    </div>
+
+                    <form id="addFilterForm" style="margin-top: 1rem;">
+                        <div class="add-subfilter-section">
+                            <div class="input-group">
+                                <input type="text" id="filterGroupName" placeholder="Ex: Redes Sociais, E-commerce"
+                                    maxlength="20" required>
+                                <button type="submit" class="btn-add-subfilter">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="filterIcon">Ícone do Grupo:</label>
+                            <select id="filterIcon">
+                                <option value="fas fa-globe">🌐 Globe (Padrão)</option>
+                                <option value="fas fa-users">👥 Users</option>
+                                <option value="fas fa-share-alt">🔗 Share</option>
+                                <option value="fas fa-shopping-cart">🛒 Shopping</option>
+                                <option value="fas fa-graduation-cap">🎓 Education</option>
+                                <option value="fas fa-briefcase">💼 Business</option>
+                                <option value="fas fa-heart">❤️ Heart</option>
+                                <option value="fas fa-star">⭐ Star</option>
+                                <option value="fas fa-home">🏠 Home</option>
+                                <option value="fas fa-cog">⚙️ Settings</option>
+                                <option value="fas fa-gamepad">🎮 Games</option>
+                                <option value="fas fa-music">🎵 Music</option>
+                                <option value="fas fa-camera">📷 Photo</option>
+                                <option value="fas fa-code">💻 Code</option>
+                                <option value="fas fa-newspaper">📰 News</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Sub-filtros Globais</h3>
+                    <div id="existingSubfiltersList" class="existing-filters">
+                        <!-- Lista de sub-filtros globais será carregada aqui -->
+                    </div>
+                    <div class="add-subfilter-section">
+                        <div class="input-group">
+                            <input type="text" id="newSubfilterInput" placeholder="Nome do sub-filtro global"
+                                maxlength="20">
+                            <button type="button" onclick="addSubfilterFromModal()" class="btn-add-subfilter">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 12px;">
+                            Os sub-filtros são globais e podem ser usados em qualquer grupo de filtros.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" onclick="closeEditFiltersModal()" class="btn btn-secondary">
+                        Cancelar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Voltar ao Topo -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()" title="Voltar ao topo">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
