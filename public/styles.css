@@ -1564,7 +1564,7 @@ body {
 
 .options {
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;
@@ -1664,7 +1664,6 @@ body {
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
     overflow: hidden;
-    margin-bottom: 40px;
 }
 
 .report-header {
