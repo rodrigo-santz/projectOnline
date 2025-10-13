@@ -1,3 +1,35 @@
+.sidebar-burger {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+.sidebar-burger .bar {
+    display: block;
+    width: 22px;
+    height: 3px;
+    background: #fff;
+    margin: 3px 0;
+    border-radius: 2px;
+    transition: 0.3s;
+}
+.monitoring-sidebar.mobile-open .sidebar-burger .bar:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+.monitoring-sidebar.mobile-open .sidebar-burger .bar:nth-child(2) {
+    opacity: 0;
+}
+.monitoring-sidebar.mobile-open .sidebar-burger .bar:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+.sidebar-header {
+    cursor: pointer;
+}
 * {
     margin: 0;
     padding: 0;

@@ -1909,29 +1909,34 @@ function toggleSidebar() {
 
     sidebar.classList.toggle('collapsed');
 
-    if (sidebar.classList.contains('collapsed')) {
-        icon.className = 'fas fa-chevron-right';
+    // Só ajusta as colunas se NÃO estiver no mobile
+    if (window.innerWidth > 768) {
+        if (sidebar.classList.contains('collapsed')) {
+            icon.className = 'fas fa-chevron-right';
 
-        // Quando colapsada: sidebar fica col-lg-3 (fechada), conteúdo principal fica col-lg-9
-        if (sidebarCol) {
-            sidebarCol.className = 'col-12 col-md-3 col-lg-3';
-            console.log('✅ Sidebar FECHADA para:', sidebarCol.className);
-        }
-        if (mainCol) {
-            mainCol.className = 'col-12 col-md-9 col-lg-9';
-            console.log('✅ Main expandida para:', mainCol.className);
-        }
-    } else {
-        icon.className = 'fas fa-chevron-left';
+            if (sidebarCol) {
+                sidebarCol.classList.remove('col-12', 'col-md-4', 'col-lg-4', 'col-md-8', 'col-lg-8', 'col-md-9', 'col-lg-9', 'col-md-3', 'col-lg-3');
+                sidebarCol.classList.add('col-12', 'col-md-3', 'col-lg-3');
+                console.log('✅ Sidebar FECHADA para:', sidebarCol.className);
+            }
+            if (mainCol) {
+                mainCol.classList.remove('col-12', 'col-md-4', 'col-lg-4', 'col-md-8', 'col-lg-8', 'col-md-9', 'col-lg-9', 'col-md-3', 'col-lg-3');
+                mainCol.classList.add('col-12', 'col-md-9', 'col-lg-9');
+                console.log('✅ Main expandida para:', mainCol.className);
+            }
+        } else {
+            icon.className = 'fas fa-chevron-left';
 
-        // Quando expandida: sidebar fica col-lg-4 (aberta), conteúdo principal fica col-lg-8
-        if (sidebarCol) {
-            sidebarCol.className = 'col-12 col-md-4 col-lg-4';
-            console.log('✅ Sidebar ABERTA para:', sidebarCol.className);
-        }
-        if (mainCol) {
-            mainCol.className = 'col-12 col-md-8 col-lg-8';
-            console.log('✅ Main reduzida para:', mainCol.className);
+            if (sidebarCol) {
+                sidebarCol.classList.remove('col-12', 'col-md-3', 'col-lg-3', 'col-md-8', 'col-lg-8', 'col-md-9', 'col-lg-9', 'col-md-4', 'col-lg-4');
+                sidebarCol.classList.add('col-12', 'col-md-4', 'col-lg-4');
+                console.log('✅ Sidebar ABERTA para:', sidebarCol.className);
+            }
+            if (mainCol) {
+                mainCol.classList.remove('col-12', 'col-md-3', 'col-lg-3', 'col-md-4', 'col-lg-4', 'col-md-9', 'col-lg-9');
+                mainCol.classList.add('col-12', 'col-md-8', 'col-lg-8');
+                console.log('✅ Main reduzida para:', mainCol.className);
+            }
         }
     }
 }

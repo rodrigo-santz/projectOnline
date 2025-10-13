@@ -33,10 +33,16 @@
 
                     <!-- Seção de Monitoramento Lateral -->
                     <div class="monitoring-sidebar" id="monitoringSidebar">
-                        <div class="sidebar-header" onclick="toggleMobileSidebar()">
+                        <div class="sidebar-header"
+                            onclick="window.innerWidth <= 768 ? toggleMobileSidebar() : toggleSidebar()">
                             <h3><i class="fas fa-heart"></i> Sites Favoritos</h3>
-                            <button class="toggle-sidebar" onclick="toggleSidebar()">
-                                <i class="fas fa-chevron-left"></i>
+                            <button class="toggle-sidebar">
+                                <i class="fas fa-chevron-left d-none d-md-inline"></i>
+                                <span class="sidebar-burger d-inline d-md-none">
+                                    <span class="bar"></span>
+                                    <span class="bar"></span>
+                                    <span class="bar"></span>
+                                </span>
                             </button>
                         </div>
 
