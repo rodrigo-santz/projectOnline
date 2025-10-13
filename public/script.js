@@ -980,9 +980,8 @@ function updateGroupCounters(favorites) {
     // Filtros padrão (exceto os removidos) com possíveis modificações
     const defaultGroups = [
         { id: 'todos', name: 'TODOS' },
-        { id: 'home', name: 'HOME' },
-        { id: 'produtos', name: 'PRODUTOS' },
-        { id: 'categorias', name: 'CATEGORIAS' }
+        { id: 'dpsp', name: 'DPSP' },
+        { id: 'swift', name: 'SWIFT' }
     ].filter(group => !removedDefaultFilters.includes(group.id))
         .map(group => {
             if (modifiedDefaultFilters[group.id]) {
@@ -2059,7 +2058,7 @@ function loadExistingFilters() {
     // Filtros padrão com possíveis modificações
     const defaultFilters = [
         { id: 'todos', name: 'Todos', icon: 'fas fa-globe', type: 'protected' }, // Protegido
-        { id: 'dpss', name: 'DPSS', icon: 'fas fa-building', type: 'default' },
+        { id: 'dpsp', name: 'DPSP', icon: 'fas fa-building', type: 'default' },
         { id: 'swift', name: 'SWIFT', icon: 'fas fa-filter', type: 'default' },
     ].filter(filter => !removedDefaultFilters.includes(filter.id))
         .map(filter => {
