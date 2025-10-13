@@ -62,8 +62,15 @@ body {
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 .robot-icon {
@@ -73,16 +80,29 @@ body {
 }
 
 @keyframes robotBounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
 }
 
 .header h1 {
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .subtitle {
@@ -118,7 +138,8 @@ body {
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
-    max-height: calc(100vh - 40px); /* 100% da altura da tela menos margem */
+    max-height: calc(100vh - 40px);
+    /* 100% da altura da tela menos margem */
     position: sticky;
     top: 20px;
     transition: all 0.3s ease;
@@ -128,6 +149,7 @@ body {
 }
 
 @media (max-width: 768px) {
+
     /* Sidebar começa relativo no mobile */
     .monitoring-sidebar {
         position: relative;
@@ -140,20 +162,23 @@ body {
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         justify-self: center;
     }
-    
+
     /* Classe para quando fica fixo no mobile após scroll */
     .monitoring-sidebar.mobile-fixed {
         position: fixed;
         top: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
         z-index: 9999;
         width: 90vw;
     }
-    
+
     .monitoring-sidebar.mobile-open {
         position: fixed;
         top: 1rem;
         z-index: 9999;
         margin: 0;
+        width: 100%;
         max-width: 500px;
         height: auto;
         overflow: hidden;
@@ -163,31 +188,36 @@ body {
         display: flex;
         flex-direction: column;
     }
-    
+
     .sidebar-header {
         position: sticky !important;
         top: 0 !important;
         z-index: 100;
         border-radius: 12px 12px 0 0 !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         flex-shrink: 0;
         cursor: pointer;
     }
-    
+
     .sidebar-content {
-        display: none; /* Escondido por padrão no mobile */
+        display: none;
+        /* Escondido por padrão no mobile */
         overflow: auto;
         max-height: calc(100vh - 120px);
     }
-    
+
     .monitoring-sidebar.mobile-open .sidebar-content {
-        display: block !important; /* Mostrado quando modal está aberto */
+        display: block !important;
+        /* Mostrado quando modal está aberto */
         overflow-y: auto !important;
-        flex: 1 !important; /* Ocupa o espaço restante */
-        height: 0 !important; /* Força o flex a calcular corretamente */
-        min-height: 0 !important; /* Permite que o flex funcione */
+        flex: 1 !important;
+        /* Ocupa o espaço restante */
+        height: 0 !important;
+        /* Força o flex a calcular corretamente */
+        min-height: 0 !important;
+        /* Permite que o flex funcione */
     }
-    
+
     /* Overlay para fechar o modal */
     .sidebar-overlay {
         position: fixed;
@@ -201,12 +231,12 @@ body {
         visibility: hidden;
         transition: all 0.3s ease;
     }
-    
+
     .sidebar-overlay.active {
         opacity: 1;
         visibility: visible;
     }
-    
+
     /* Tabs com scroll horizontal - CORRIGIDO */
     .group-tabs {
         display: flex !important;
@@ -221,7 +251,7 @@ body {
         -webkit-overflow-scrolling: touch;
         white-space: nowrap;
     }
-    
+
     .group-tabs .tab {
         min-width: 120px !important;
         width: auto !important;
@@ -233,59 +263,60 @@ body {
         display: inline-flex !important;
         align-items: center !important;
     }
-    
+
     /* Scrollbar horizontal customizada */
     .group-tabs::-webkit-scrollbar {
         height: 4px;
         width: auto;
     }
-    
+
     .group-tabs::-webkit-scrollbar-track {
         background: var(--bg-color);
         border-radius: 2px;
     }
-    
+
     .group-tabs::-webkit-scrollbar-thumb {
         background: var(--border-color);
         border-radius: 2px;
     }
-    
+
     .group-tabs::-webkit-scrollbar-thumb:hover {
         background: var(--text-secondary);
     }
-    
+
     /* Filters Accordion - Mobile */
     .filters-accordion {
         margin-bottom: 15px;
     }
-    
+
     .filters-accordion .accordion-content {
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.3s ease;
     }
-    
+
     .filters-accordion .accordion-content.open {
-        max-height: 500px; /* Altura máxima para expandir no mobile */
+        max-height: 500px;
+        /* Altura máxima para expandir no mobile */
         overflow-y: auto;
         overflow-x: hidden;
     }
-    
+
     /* Scrollbar customizada para accordion no mobile */
     .filters-accordion .accordion-content::-webkit-scrollbar {
         width: 4px;
     }
-    
+
     .filters-accordion .accordion-content::-webkit-scrollbar-track {
         background: #f1f1f1;
         border-radius: 2px;
     }
-    
+
     .filters-accordion .accordion-content::-webkit-scrollbar-thumb {
         background: var(--primary-color);
         border-radius: 2px;
     }
-    
+
     .filters-accordion .accordion-content::-webkit-scrollbar-thumb:hover {
         background: var(--primary-dark);
     }
@@ -356,8 +387,10 @@ body {
     box-sizing: border-box;
     overflow-y: auto;
     overflow-x: hidden;
-    flex: 1; /* Ocupa o espaço restante */
-    min-height: 0; /* Permite que o flex funcione corretamente */
+    flex: 1;
+    /* Ocupa o espaço restante */
+    min-height: 0;
+    /* Permite que o flex funcione corretamente */
 }
 
 /* Customizar scrollbar da sidebar */
@@ -447,8 +480,10 @@ body {
     grid-template-columns: 1fr;
     gap: 8px;
     padding: 15px;
-    max-height: 320px; /* Altura ajustada para mostrar 5 filtros completos, considerando padding e gap */
-    overflow-y: auto; /* Scroll vertical quando necessário */
+    max-height: 320px;
+    /* Altura ajustada para mostrar 5 filtros completos, considerando padding e gap */
+    overflow-y: auto;
+    /* Scroll vertical quando necessário */
 }
 
 /* Estilo do scrollbar para as abas */
@@ -485,7 +520,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .group-tabs .tab:hover {
@@ -651,8 +686,10 @@ body {
 .add-favorite-container {
     margin-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0; /* Sem padding por padrão (quando fechado) */
-    transition: padding-bottom 0.3s ease; /* Transição suave */
+    padding-bottom: 0;
+    /* Sem padding por padrão (quando fechado) */
+    transition: padding-bottom 0.3s ease;
+    /* Transição suave */
 }
 
 .add-favorite-header {
@@ -663,7 +700,8 @@ body {
 }
 
 .btn-add-favorite {
-    flex: 1; /* Ocupa o espaço restante */
+    flex: 1;
+    /* Ocupa o espaço restante */
     background: var(--primary-color);
     color: white;
     border: none;
@@ -709,6 +747,7 @@ body {
         opacity: 0;
         max-height: 0;
     }
+
     to {
         opacity: 1;
         max-height: 200px;
@@ -746,12 +785,12 @@ body {
         flex: 1 1 100%;
         min-width: 100%;
     }
-    
+
     .group-select {
         flex: 1 1 calc(50% - 3px);
         min-width: calc(50% - 3px);
     }
-    
+
     .add-favorite-btn {
         flex: 1 1 100%;
         min-width: 100%;
@@ -856,8 +895,10 @@ body {
     align-items: center;
     gap: 12px;
     flex: 1;
-    min-width: 0; /* Permite que o conteúdo encolha */
-    overflow: hidden; /* Garante que o conteúdo não vaze */
+    min-width: 0;
+    /* Permite que o conteúdo encolha */
+    overflow: hidden;
+    /* Garante que o conteúdo não vaze */
 }
 
 .status-icon {
@@ -872,7 +913,8 @@ body {
     font-size: 12px;
     line-height: 1.3;
     flex: 1;
-    min-width: 0; /* Permite que o elemento encolha */
+    min-width: 0;
+    /* Permite que o elemento encolha */
 }
 
 .favorite-url strong {
@@ -901,9 +943,12 @@ body {
     border-radius: 10px;
     vertical-align: middle;
     white-space: nowrap;
-    max-width: 150px; /* Limita a largura máxima */
-    text-overflow: ellipsis; /* Adiciona ... ao final do texto se ultrapassar */
-    overflow: hidden; /* Esconde o texto excedente */
+    max-width: 150px;
+    /* Limita a largura máxima */
+    text-overflow: ellipsis;
+    /* Adiciona ... ao final do texto se ultrapassar */
+    overflow: hidden;
+    /* Esconde o texto excedente */
 }
 
 .group-badge i {
@@ -966,8 +1011,15 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 .favorite-actions {
@@ -1168,7 +1220,8 @@ body {
     justify-content: flex-end;
 }
 
-.btn-cancel, .btn-save {
+.btn-cancel,
+.btn-save {
     padding: 8px 16px;
     border: none;
     border-radius: 6px;
@@ -1304,9 +1357,17 @@ body {
     gap: 5px;
 }
 
-.quick-stat.total { color: var(--primary-color); }
-.quick-stat.working { color: var(--success-color); }
-.quick-stat.broken { color: var(--danger-color); }
+.quick-stat.total {
+    color: var(--primary-color);
+}
+
+.quick-stat.working {
+    color: var(--success-color);
+}
+
+.quick-stat.broken {
+    color: var(--danger-color);
+}
 
 .favorite-links {
     display: flex;
@@ -1545,8 +1606,13 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .progress-info {
@@ -2011,7 +2077,7 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
 }
 
@@ -2074,7 +2140,7 @@ body {
 }
 
 /* Notificações e Persistência */
- .save-notification {
+.save-notification {
     position: fixed;
     top: 20px;
     left: 50%;
@@ -2088,7 +2154,7 @@ body {
     text-align: center;
     max-width: 400px;
     width: 90%;
-    animation: slideInMobile 0.4s cubic-bezier(.4,0,.2,1);
+    animation: slideInMobile 0.4s cubic-bezier(.4, 0, .2, 1);
     transition: none;
 }
 
@@ -2109,13 +2175,25 @@ body {
 /* Removido .restore-notification */
 
 @keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
 }
 
 @keyframes slideInMobile {
-    from { opacity: 0; transform: translateY(-30px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* Botão Danger */
@@ -2133,58 +2211,58 @@ body {
     .container {
         padding: 0 15px;
     }
-    
+
     .header {
         padding: 30px 20px;
     }
-    
+
     .header h1 {
         font-size: 2rem;
     }
-    
+
     .input-section {
         padding: 30px 20px;
     }
-    
+
     /* Limitar altura dos cards expandidos em mobile */
     .favorite-expanded {
         max-height: 250px;
     }
-    
+
     .input-group {
         flex-direction: column;
     }
-    
+
     .input-container {
         min-width: auto;
     }
-    
+
     .options {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .summary-cards {
         grid-template-columns: 1fr;
         padding: 20px;
     }
-    
+
     .report-header {
         padding: 20px;
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .tabs {
         padding: 0 20px;
         flex-direction: column;
         width: 100%;
     }
-    
+
     .tab-content {
         padding: 20px;
     }
-    
+
     .modal-content {
         margin: 5% auto;
         padding: 15px;
@@ -2193,39 +2271,39 @@ body {
         max-height: 90vh;
         overflow-y: auto;
     }
-    
+
     .modal-header {
         padding: 12px 15px;
     }
-    
+
     .modal-header h2 {
         font-size: 1.1rem;
     }
-    
+
     .form-group {
         margin-bottom: 15px;
     }
-    
+
     .form-actions {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .form-actions .btn {
         width: 100%;
         padding: 12px;
     }
-    
+
     #editFiltersModal .modal-content {
         max-height: 90vh;
         overflow-y: auto;
     }
-    
+
     .existing-filters {
         max-height: 200px;
         overflow-y: auto;
     }
-    
+
     .info-step {
         flex-direction: column;
         text-align: center;
@@ -2239,46 +2317,46 @@ body {
         width: 98%;
         max-height: 95vh;
     }
-    
+
     .modal-header {
         padding: 10px 12px;
     }
-    
+
     .modal-header h2,
     .modal-header h3 {
         font-size: 1rem;
     }
-    
+
     .confirm-modal .modal-actions {
         flex-direction: column;
     }
-    
+
     .confirm-modal .btn-confirm,
     .confirm-modal .btn-cancel {
         width: 100%;
         margin: 5px 0;
     }
-    
+
     .header h1 {
         font-size: 1.5rem;
     }
-    
+
     .robot-icon {
         font-size: 3rem;
     }
-    
+
     .subtitle {
         font-size: 1rem;
     }
-    
+
     .summary-card {
         padding: 20px;
     }
-    
+
     .card-content h3 {
         font-size: 1.5rem;
     }
-    
+
     .link-header {
         flex-direction: column;
         align-items: flex-start;
@@ -2753,6 +2831,7 @@ body {
         opacity: 0;
         transform: translate(-50%, -60%);
     }
+
     to {
         opacity: 1;
         transform: translate(-50%, -50%);
@@ -2944,6 +3023,7 @@ body {
         opacity: 0;
         transform: scale(0.9) translateY(-20px);
     }
+
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -2959,14 +3039,14 @@ body {
         max-width: 100%;
         overflow: hidden;
     }
-    
+
     .link-item * {
         word-wrap: break-word;
         overflow-wrap: break-word;
         word-break: break-word;
         max-width: 100%;
     }
-    
+
     .link-item .link-url {
         word-break: break-all;
         overflow-wrap: anywhere;
