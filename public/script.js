@@ -921,12 +921,7 @@ function showFullReport(favoriteId) {
     // Mostrar resultados sem salvar novamente (já está salvo no favorito)
     showResultsFromFavorite(favorite.lastReport);
 
-    // Rolar para os resultados com offset de 120px
-    const resultsTop = results.offsetTop - 140;
-    window.scrollTo({
-        top: resultsTop,
-        behavior: 'smooth'
-    });
+    // Removido scroll automático para evitar centralização
 } function toggleFavoriteDetails(favoriteId) {
     const detailsElement = document.getElementById(`details-${favoriteId}`);
     const button = document.querySelector(`[data-id="${favoriteId}"] .btn-details i`);
@@ -1187,16 +1182,10 @@ function showResults(report) {
     populateAllLinksList(report.details);
 
     // Mostrar informações do relatório salvo
-    showReportSavedNotification();
+    // showReportSavedNotification(); // Notificação só será chamada ao salvar novo relatório
 
     results.style.display = 'block';
 
-    // Rolar para os resultados com offset de 200px
-    const resultsTop = results.offsetTop - 200;
-    window.scrollTo({
-        top: resultsTop,
-        behavior: 'smooth'
-    });
 }
 
 function populateLinksList(containerId, links, type) {
@@ -1484,6 +1473,10 @@ async function checkAllFavorites() {
 
         if (favorites.length === 0) {
             console.log('📭 Nenhum site favorito para verificar');
+            // Atualizar timestamp da última verificação para evitar loop
+            const settings = loadMonitoringSettings();
+            settings.lastCheck = new Date().toISOString();
+            saveMonitoringSettings(settings);
             return;
         }
 
@@ -1543,13 +1536,21 @@ async function checkAllFavorites() {
         });
     } finally {
         isChecking = false; // Sempre liberar flag de verificação
-        updateNextCheckDisplay();
     }
+    updateNextCheckDisplay();
 }
 
 function updateNextCheckDisplay() {
-    if (!monitoringActive) {
+
+    // Verificar se há favoritos
+    const favorites = JSON.parse(localStorage.getItem(STORAGE_KEYS.FAVORITE_SITES) || '[]');
+    if (!monitoringActive || favorites.length === 0) {
         nextCheck.textContent = 'Desativado';
+        // Parar timer de atualização se estiver rodando
+        if (nextCheckTimeout) {
+            clearInterval(nextCheckTimeout);
+            nextCheckTimeout = null;
+        }
         return;
     }
 
@@ -1741,37 +1742,31 @@ function restoreLastReport() {
     if (savedReport) {
         currentReport = savedReport;
         showResults(savedReport);
-
-        // Mostrar notificação de restauração
-        const notification = document.createElement('div');
-        notification.className = 'restore-notification';
-        notification.innerHTML = `
-            <i class="fas fa-history"></i>
-            <span>Relatório anterior restaurado: ${savedReport.url}</span>
-            <button onclick="clearSavedReport()" class="clear-btn">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.remove();
-        }, 8000);
+        // Não mostrar notificação visual de restauração
+        // Não rolar a página ao restaurar relatório
+        // window.scrollTo({ top: 0 }); // Se quiser garantir, pode descomentar
     }
 }
 
 function clearSavedReport() {
+    // Remover relatório salvo do localStorage
     localStorage.removeItem(STORAGE_KEYS.CURRENT_REPORT);
-    hideResults();
     currentReport = null;
 
-    // Remover notificação se existir
+    // Remover notificação visual
     const notification = document.querySelector('.restore-notification');
     if (notification) {
         notification.remove();
     }
 
-    console.log('🗑️ Relatório limpo');
+
+    // Esconder resultados da tela
+    const results = document.getElementById('results');
+    if (results) {
+        results.style.display = 'none';
+    }
+
+    console.log('🗑️ Relatório salvo removido e notificação apagada');
 }
 
 // Inicialização da aplicação

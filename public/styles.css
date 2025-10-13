@@ -99,6 +99,10 @@ body {
 
 .main-area {
     width: 100%;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    z-index: 1;
 }
 
 /* Sistema de Monitoramento Lateral */
@@ -144,19 +148,33 @@ body {
     
     .monitoring-sidebar.mobile-open {
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1000;
-        transform: translateY(0);
+        top: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
         margin: 0;
-        height: 100vh;
-        max-height: 100vh;
+        width: 90%;
+        max-width: 500px;
+        height: auto;
+        max-height: calc(100vh - 2rem);
         overflow: hidden;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
         display: flex;
         flex-direction: column;
+        animation: sidebarMobileOpen 0.4s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes sidebarMobileOpen {
+        0% {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.98);
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
     }
     
     .sidebar-header {
@@ -183,24 +201,6 @@ body {
         min-height: 0 !important; /* Permite que o flex funcione */
     }
     
-    /* Para quando está relative mas aberto */
-    .monitoring-sidebar.mobile-open:not(.mobile-fixed) {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        transform: translateY(0) !important;
-        margin: 0 !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        overflow: hidden !important;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-        display: flex !important;
-        flex-direction: column !important;
-        z-index: 1000 !important;
-    }
-    
     /* Overlay para fechar o modal */
     .sidebar-overlay {
         position: fixed;
@@ -223,13 +223,13 @@ body {
     /* Tabs com scroll horizontal - CORRIGIDO */
     .group-tabs {
         display: flex !important;
-        flex-direction: row !important;
+        flex-direction: column !important;
         grid-template-columns: none !important;
         gap: 8px;
         padding: 15px;
-        max-height: none !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
+        max-height: 150px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
         white-space: nowrap;
@@ -273,13 +273,14 @@ body {
     }
     
     .filters-accordion .accordion-content {
-        max-height: none; /* Remove limitação de altura */
-        overflow: visible; /* Permite expansão completa */
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
     }
     
     .filters-accordion .accordion-content.open {
-        max-height: 240px; /* Altura para aproximadamente 3 filtros (80px cada) */
-        overflow-y: auto; /* Scroll quando exceder 3 itens */
+        max-height: 500px; /* Altura máxima para expandir no mobile */
+        overflow-y: auto;
         overflow-x: hidden;
     }
     
@@ -1414,6 +1415,10 @@ body {
     flex-wrap: wrap;
 }
 
+.input-group .check-button {
+    border-radius: 8px !important;
+}
+
 .input-container {
     position: relative;
     flex: 1;
@@ -2082,45 +2087,48 @@ body {
 }
 
 /* Notificações e Persistência */
-.save-notification, .restore-notification {
+ .save-notification {
     position: fixed;
     top: 20px;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--success-color);
     color: white;
     padding: 15px 20px;
     border-radius: 8px;
-    z-index: 1000;
-    animation: slideIn 0.3s ease;
-    box-shadow: var(--shadow-lg);
+    z-index: 10000;
     font-weight: 500;
-}
-
-.restore-notification {
-    background: var(--primary-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    text-align: center;
     max-width: 400px;
+    width: 90%;
+    animation: slideInMobile 0.4s cubic-bezier(.4,0,.2,1);
+    transition: none;
 }
 
-.restore-notification .clear-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: white;
-    padding: 5px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: auto;
+@media (min-width: 769px) {
+    .save-notification {
+        left: auto;
+        right: 30px;
+        top: 30px;
+        transform: none !important;
+        width: auto;
+        max-width: 400px;
+        text-align: right;
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
-.restore-notification .clear-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
+/* Removido .restore-notification */
 
 @keyframes slideIn {
     from { transform: translateX(100%); }
     to { transform: translateX(0); }
+}
+
+@keyframes slideInMobile {
+    from { opacity: 0; transform: translateY(-30px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* Botão Danger */
