@@ -146,8 +146,7 @@ body {
         position: fixed;
         top: 1rem;
         z-index: 9999;
-        margin: 0;
-        width: 320px;
+        width: 90vw;
     }
     
     .monitoring-sidebar.mobile-open {
@@ -155,7 +154,6 @@ body {
         top: 1rem;
         z-index: 9999;
         margin: 0;
-        width: auto;
         max-width: 500px;
         height: auto;
         overflow: hidden;
