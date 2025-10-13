@@ -614,9 +614,8 @@ function getGroupDisplayName(group) {
     // Nomes padrão dos filtros
     const groupNames = {
         'todos': 'TODOS',
-        'home': 'HOME',
-        'produtos': 'PRODUTOS',
-        'categorias': 'CATEGORIAS'
+        'dpsp': 'DPSP',
+        'swift': 'SWIFT'
     };
 
     return groupNames[group] || group.toUpperCase();
