@@ -672,20 +672,31 @@ function editFavoriteGroup(favoriteId) {
 
     const currentGroup = favorite.group;
     const currentSubfilter = favorite.subfilter || '';
-    const groupOptions = [
-        { value: 'home', label: 'HOME' },
-        { value: 'produtos', label: 'PRODUTOS' },
-        { value: 'categorias', label: 'CATEGORIAS' }
-    ];
+    // Buscar grupos do existingFiltersList
+    const existingFiltersList = document.getElementById('existingFiltersList');
+    let groupOptions = [];
+    if (existingFiltersList) {
+        // Extrair grupos do DOM
+        groupOptions = Array.from(existingFiltersList.querySelectorAll('.filter-item .filter-name')).map(el => {
+            return { value: el.textContent.trim().toLowerCase(), label: el.textContent.trim() };
+        });
+    } else {
+        // Fallback para os grupos padrão
+        groupOptions = [
+            { value: 'dpsp', label: 'DPSP' },
+            { value: 'swift', label: 'SWIFT' },
+            { value: 'todos', label: 'Todos' }
+        ];
+    }
 
-    const subfilterOptions = [
-        { value: 'todos', label: 'Todos' },
-        { value: '', label: 'Sem subfiltro' },
-        { value: 'home', label: 'HOME' },
-        { value: 'produtos', label: 'PRODUTOS' },
-        { value: 'contato', label: 'CONTATO' },
-        { value: 'admin', label: 'ADMIN' }
-    ];
+    // Subfiltros: se houver subfilters no filtro selecionado, usar; senão, usar globalSubfilters
+    let subfilterOptions = [{ value: '', label: 'Sem subfiltro' }];
+    const selectedFilter = groupOptions.find(g => g.value === currentGroup);
+    if (selectedFilter && selectedFilter.subfilters && selectedFilter.subfilters.length > 0) {
+        subfilterOptions = subfilterOptions.concat(selectedFilter.subfilters.map(sub => ({ value: sub, label: sub })));
+    } else if (window.globalSubfilters && window.globalSubfilters.length > 0) {
+        subfilterOptions = subfilterOptions.concat(window.globalSubfilters.map(sub => ({ value: sub, label: sub })));
+    }
 
     // Criar modal de seleção
     const modalHTML = `
@@ -1783,7 +1794,7 @@ function initializeApp() {
 
     // Inicializar sub-filtros de exemplo se não existir nenhum
     if (globalSubfilters.length === 0) {
-        globalSubfilters = ['Home', 'Produto', 'Departamento'];
+        globalSubfilters = [];
         saveGlobalSubfilters();
         console.log('🎯 Sub-filtros de exemplo criados:', globalSubfilters);
     }
@@ -2476,15 +2487,7 @@ function removeFilter(filterId, filterType) {
 
 // Função auxiliar para obter nome do filtro por ID
 function getFilterNameById(filterId) {
-    const defaultFiltersMap = {
-        'home': 'HOME',
-        'produtos': 'PRODUTOS',
-        'categorias': 'CATEGORIAS'
-    };
-
-    if (defaultFiltersMap[filterId]) {
-        return defaultFiltersMap[filterId];
-    }
+    // Removido: home, produtos, categorias
 
     const customFilter = customFilters.find(f => f.id === filterId);
     return customFilter ? customFilter.name : filterId;
@@ -2493,17 +2496,24 @@ function getFilterNameById(filterId) {
 // Editar filtro existente
 function editFilter(filterId, filterType) {
     let filterData;
+    const modifiedDefaultFilters = JSON.parse(localStorage.getItem('modifiedDefaultFilters')) || {};
 
     if (filterType === 'custom') {
         filterData = customFilters.find(f => f.id === filterId);
     } else {
         // Filtros padrão
         const defaultFiltersMap = {
-            'home': { id: 'home', name: 'HOME', icon: 'fas fa-home' },
-            'produtos': { id: 'produtos', name: 'PRODUTOS', icon: 'fas fa-shopping-cart' },
-            'categorias': { id: 'categorias', name: 'CATEGORIAS', icon: 'fas fa-folder' }
+            'dpsp': { id: 'dpsp', name: 'DPSP', icon: 'fas fa-home' },
+            'swift': { id: 'swift', name: 'SWIFT', icon: 'fas fa-shopping-cart' }
         };
         filterData = defaultFiltersMap[filterId];
+        // Se foi modificado, usa o nome e ícone modificados
+        if (modifiedDefaultFilters[filterId]) {
+            filterData = {
+                ...filterData,
+                ...modifiedDefaultFilters[filterId]
+            };
+        }
     }
 
     if (!filterData) {
@@ -2631,6 +2641,44 @@ function createEditFilterModal() {
         e.preventDefault();
         saveFilterChanges();
     });
+
+    // Função para salvar alterações do filtro
+    function saveFilterChanges() {
+        const filterId = document.getElementById('editFilterId').value;
+        const filterType = document.getElementById('editFilterType').value;
+        const filterName = document.getElementById('editFilterGroupName').value.trim();
+        const filterIcon = document.getElementById('editFilterIcon').value;
+
+        if (!filterName) {
+            alert('Por favor, digite o nome do filtro.');
+            return;
+        }
+
+        // Atualizar filtro no localStorage
+        const removedDefaultFilters = JSON.parse(localStorage.getItem('removedDefaultFilters')) || [];
+        const modifiedDefaultFilters = JSON.parse(localStorage.getItem('modifiedDefaultFilters')) || {};
+
+        modifiedDefaultFilters[filterId] = {
+            name: filterName,
+            icon: filterIcon
+        };
+        localStorage.setItem('modifiedDefaultFilters', JSON.stringify(modifiedDefaultFilters));
+
+        // Atualizar interface
+        updateFilterTabs();
+        updateGroupSelects();
+        loadExistingFilters();
+
+        // Recarregar favoritos para atualizar badges
+        const favorites = loadFavoriteSites();
+        renderFavoriteSites(favorites);
+
+        // Forçar atualização do indicador ativo
+        updateActiveFilterIndicator();
+
+        closeEditFilterModal();
+        showSuccessMessage(`Filtro "${filterName}" atualizado com sucesso!`);
+    }
 }
 
 // Fechar modal de edição
@@ -2642,51 +2690,42 @@ function closeEditFilterModal() {
 }
 
 // Salvar alterações do filtro
-function saveFilterChanges() {
-    const filterId = document.getElementById('editFilterId').value;
-    const filterType = document.getElementById('editFilterType').value;
-    const newName = document.getElementById('editFilterGroupName').value.trim();
-    const newIcon = document.getElementById('editFilterIcon').value;
+function updateFilterTabs() {
+    // Atualizar abas de grupos principais
+    const groupTabs = document.getElementById('groupTabs');
+    if (!groupTabs) return;
 
-    if (!newName) {
-        alert('Por favor, insira o nome do grupo.');
-        return;
+    // Filtros padrão + customizados
+    const removedDefaultFilters = JSON.parse(localStorage.getItem('removedDefaultFilters')) || [];
+    const modifiedDefaultFilters = JSON.parse(localStorage.getItem('modifiedDefaultFilters')) || {};
+
+    const defaultFilters = [
+        { id: 'todos', name: 'Todos', icon: 'fas fa-globe', type: 'protected' },
+        { id: 'dpsp', name: 'DPSP', icon: 'fas fa-building', type: 'default' },
+        { id: 'swift', name: 'SWIFT', icon: 'fas fa-filter', type: 'default' }
+    ].filter(f => !removedDefaultFilters.includes(f.id))
+        .map(f => modifiedDefaultFilters[f.id] ? { ...f, ...modifiedDefaultFilters[f.id] } : f);
+
+    // Garantir que só os filtros válidos apareçam
+    const allFilters = [...defaultFilters, ...customFilters];
+
+    // Renderizar tabs e accordion apenas com os filtros válidos
+    groupTabs.innerHTML = allFilters.map(filter => `
+        <div class="tab group-tab" data-group="${filter.id}" onclick="filterByGroup('${filter.id}')">
+            <i class="${filter.icon}"></i> ${filter.name}
+        </div>
+    `).join('');
+
+    const filtersAccordion = document.getElementById('filtersAccordion');
+    if (filtersAccordion) {
+        filtersAccordion.innerHTML = allFilters.map(filter => `
+            <div class="accordion-filter-item" data-group="${filter.id}" onclick="filterByGroup('${filter.id}')">
+                <i class="${filter.icon}"></i> ${filter.name}
+            </div>
+        `).join('');
     }
-
-    if (filterType === 'custom') {
-        // Editar filtro customizado
-        const filterIndex = customFilters.findIndex(f => f.id === filterId);
-        if (filterIndex !== -1) {
-            customFilters[filterIndex].name = newName.toUpperCase();
-            customFilters[filterIndex].icon = newIcon;
-
-            saveCustomFilters();
-        }
-    } else {
-        // Para filtros padrão, salvar as alterações em um objeto separado
-        let modifiedDefaultFilters = JSON.parse(localStorage.getItem('modifiedDefaultFilters')) || {};
-        modifiedDefaultFilters[filterId] = {
-            name: newName.toUpperCase(),
-            icon: newIcon
-        };
-        localStorage.setItem('modifiedDefaultFilters', JSON.stringify(modifiedDefaultFilters));
-    }
-
-    // Atualizar interface
-    updateFilterTabs();
-    updateGroupSelects();
-    loadExistingFilters();
-
-    // Recarregar favoritos para atualizar badges
-    const favorites = loadFavoriteSites();
-    renderFavoriteSites(favorites);
-
-    // Forçar atualização do indicador ativo
-    updateActiveFilterIndicator();
-
-    closeEditFilterModal();
-    showSuccessMessage(`Filtro "${newName}" atualizado com sucesso!`);
 }
+// ...existing code...
 
 // Manter função para compatibilidade (agora chama a nova função)
 function removeCustomFilter(filterId) {
@@ -2705,9 +2744,8 @@ function updateFilterTabs() {
     // Filtros padrão (exceto os removidos) com possíveis modificações
     const defaultFilters = [
         { id: 'todos', name: 'TODOS', icon: 'fas fa-globe' },
-        { id: 'home', name: 'HOME', icon: 'fas fa-home' },
-        { id: 'produtos', name: 'PRODUTOS', icon: 'fas fa-shopping-cart' },
-        { id: 'categorias', name: 'CATEGORIAS', icon: 'fas fa-folder' }
+        { id: 'dpsp', name: 'DPSP', icon: 'fas fa-building' },
+        { id: 'swift', name: 'SWIFT', icon: 'fas fa-filter' }
     ].filter(filter => !removedDefaultFilters.includes(filter.id))
         .map(filter => {
             if (modifiedDefaultFilters[filter.id]) {
