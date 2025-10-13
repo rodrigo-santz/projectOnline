@@ -1784,7 +1784,7 @@ function initializeApp() {
 
     // Inicializar sub-filtros de exemplo se não existir nenhum
     if (globalSubfilters.length === 0) {
-        globalSubfilters = ['Produção', 'Teste', 'Desenvolvimento'];
+        globalSubfilters = ['Home', 'Produto', 'Departamento'];
         saveGlobalSubfilters();
         console.log('🎯 Sub-filtros de exemplo criados:', globalSubfilters);
     }
