@@ -164,22 +164,25 @@ body {
     }
 
     /* Classe para quando fica fixo no mobile após scroll */
-        .monitoring-sidebar.mobile-fixed {
-            position: fixed;
-            top: 1rem;
-            left: 0;
-            right: 0;
-            margin-left: auto;
-            margin-right: auto;
-            z-index: 9999;
-            width: 90vw;
-        }
+    .monitoring-sidebar.mobile-fixed {
+        position: fixed;
+        top: 1rem;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        z-index: 9999;
+        width: 90vw;
+    }
 
     .monitoring-sidebar.mobile-open {
         position: fixed;
         top: 1rem;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
         z-index: 9999;
-        margin: 0;
         width: 90vw;
         max-width: 500px;
         height: auto;
@@ -2145,8 +2148,10 @@ body {
 .save-notification {
     position: fixed;
     top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
     background: var(--success-color);
     color: white;
     padding: 15px 20px;
