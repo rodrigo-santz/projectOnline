@@ -2058,10 +2058,9 @@ function loadExistingFilters() {
 
     // Filtros padrão com possíveis modificações
     const defaultFilters = [
-        { id: 'todos', name: 'TODOS', icon: 'fas fa-globe', type: 'protected' }, // Protegido
-        { id: 'home', name: 'HOME', icon: 'fas fa-home', type: 'default' },
-        { id: 'produtos', name: 'PRODUTOS', icon: 'fas fa-shopping-cart', type: 'default' },
-        { id: 'categorias', name: 'CATEGORIAS', icon: 'fas fa-folder', type: 'default' }
+        { id: 'todos', name: 'Todos', icon: 'fas fa-globe', type: 'protected' }, // Protegido
+        { id: 'dpss', name: 'DPSS', icon: 'fas fa-building', type: 'default' },
+        { id: 'swift', name: 'SWIFT', icon: 'fas fa-filter', type: 'default' },
     ].filter(filter => !removedDefaultFilters.includes(filter.id))
         .map(filter => {
             if (modifiedDefaultFilters[filter.id]) {
