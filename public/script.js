@@ -251,6 +251,13 @@ function addFavoriteUrl() {
     favorites.push(newFavorite);
     saveFavoriteSites(favorites);
     renderFavoriteSites(favorites);
+    // Reinicia o timer do contador dinâmico
+    if (nextCheckTimeout) {
+        clearInterval(nextCheckTimeout);
+        nextCheckTimeout = null;
+    }
+    updateNextCheckDisplay();
+    nextCheckTimeout = setInterval(updateNextCheckDisplay, 1000);
 
     favoriteUrlInput.value = '';
 

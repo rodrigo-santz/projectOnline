@@ -27,17 +27,83 @@ function isValidUrl(string) {
 async function checkLink(linkContext, timeout = 10000) {
     const url = linkContext.url || linkContext; // Compatibilidade com formato antigo
 
-    try {
-        const response = await axios.get(url, {
-            timeout,
-            validateStatus: function (status) {
-                return true; // Retorna qualquer status para análise
-            },
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            },
-            maxRedirects: 5 // Permitir redirecionamentos
-        });
+    let attempts = 0;
+    let lastError = null;
+    while (attempts < 5) {
+        try {
+            const response = await axios.get(url, {
+                timeout,
+                validateStatus: function (status) {
+                    return true; // Retorna qualquer status para análise
+                },
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                },
+                maxRedirects: 5 // Permitir redirecionamentos
+            });
+            // ...existing code...
+            // Verificar se houve redirecionamento para URLs suspeitas
+            const finalUrl = response.request.res.responseUrl || url;
+            const urlAnalysis = analyzeUrl(finalUrl, url);
+            // Começar assumindo que está funcionando se o status HTTP for bom
+            let isWorking = response.status >= 200 && response.status < 400;
+            let additionalInfo = {};
+            // Só fazer análise de conteúdo se o status for bom
+            if (isWorking) {
+                const cheerio = require('cheerio');
+                const $ = cheerio.load(response.data);
+                const pageAnalysis = analyzePageContent($, response.data, finalUrl);
+                // ...existing code...
+            }
+            return {
+                url,
+                finalUrl: finalUrl !== url ? finalUrl : undefined,
+                status: response.status,
+                statusText: response.statusText,
+                isWorking,
+                responseTime: Date.now(),
+                ...additionalInfo,
+                ...(linkContext.type && {
+                    context: {
+                        type: linkContext.type,
+                        element: linkContext.element,
+                        attribute: linkContext.attribute,
+                        text: linkContext.text,
+                        selector: linkContext.selector,
+                        position: linkContext.position,
+                        originalHref: linkContext.originalHref
+                    }
+                })
+            };
+        } catch (error) {
+            lastError = error;
+            if (error.code === 'ECONNABORTED') {
+                attempts++;
+                continue; // Tenta novamente
+            } else {
+                break; // Outro erro, não tenta novamente
+            }
+        }
+    }
+    // Se chegou aqui, todas as tentativas falharam
+    return {
+        url,
+        status: 0,
+        statusText: lastError ? lastError.message : 'Erro desconhecido',
+        isWorking: false,
+        error: lastError ? lastError.code || 'UNKNOWN_ERROR' : 'UNKNOWN_ERROR',
+        ...(linkContext.type && {
+            context: {
+                type: linkContext.type,
+                element: linkContext.element,
+                attribute: linkContext.attribute,
+                text: linkContext.text,
+                selector: linkContext.selector,
+                position: linkContext.position,
+                originalHref: linkContext.originalHref
+            }
+        })
+    };
 
         // Verificar se houve redirecionamento para URLs suspeitas
         const finalUrl = response.request.res.responseUrl || url;
@@ -141,27 +207,7 @@ async function checkLink(linkContext, timeout = 10000) {
                 }
             })
         };
-    } catch (error) {
-        return {
-            url,
-            status: 0,
-            statusText: error.message,
-            isWorking: false,
-            error: error.code || 'UNKNOWN_ERROR',
-            // Adicionar informações de contexto se disponíveis
-            ...(linkContext.type && {
-                context: {
-                    type: linkContext.type,
-                    element: linkContext.element,
-                    attribute: linkContext.attribute,
-                    text: linkContext.text,
-                    selector: linkContext.selector,
-                    position: linkContext.position,
-                    originalHref: linkContext.originalHref
-                }
-            })
-        };
-    }
+    // ...o bloco de retry já trata os erros e retorna o resultado adequado...
 }
 
 // Função para analisar se uma URL é suspeita (indicando busca vazia ou erro)
