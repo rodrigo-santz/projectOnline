@@ -26,21 +26,25 @@ function isValidUrl(string) {
 // Função para verificar se um link está quebrado (agora aceita contexto)
 async function checkLink(linkContext, timeout = 10000) {
     const url = linkContext.url || linkContext; // Compatibilidade com formato antigo
+    const maxRetries = 5;
+    const baseDelay = 300; // ms
+    let attempt = 0;
 
-    try {
-        const response = await axios.get(url, {
-            timeout,
-            validateStatus: function (status) {
-                return true; // Retorna qualquer status para análise
-            },
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            },
-            maxRedirects: 5 // Permitir redirecionamentos
-        });
+    while (attempt < maxRetries) {
+        try {
+            const response = await axios.get(url, {
+                timeout,
+                validateStatus: function (status) {
+                    return true; // Retorna qualquer status para análise
+                },
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                },
+                maxRedirects: 5 // Permitir redirecionamentos
+            });
 
-        // Verificar se houve redirecionamento para URLs suspeitas
-        const finalUrl = response.request.res.responseUrl || url;
+            // Verificar se houve redirecionamento para URLs suspeitas
+            const finalUrl = response.request.res.responseUrl || url;
         const urlAnalysis = analyzeUrl(finalUrl, url);
 
         // Começar assumindo que está funcionando se o status HTTP for bom
@@ -141,26 +145,39 @@ async function checkLink(linkContext, timeout = 10000) {
                 }
             })
         };
-    } catch (error) {
-        return {
-            url,
-            status: 0,
-            statusText: error.message,
-            isWorking: false,
-            error: error.code || 'UNKNOWN_ERROR',
-            // Adicionar informações de contexto se disponíveis
-            ...(linkContext.type && {
-                context: {
-                    type: linkContext.type,
-                    element: linkContext.element,
-                    attribute: linkContext.attribute,
-                    text: linkContext.text,
-                    selector: linkContext.selector,
-                    position: linkContext.position,
-                    originalHref: linkContext.originalHref
-                }
-            })
-        };
+        } catch (error) {
+            attempt++;
+            
+            // Se for ECONNABORTED ou timeout e ainda há tentativas disponíveis
+            if ((error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') && attempt < maxRetries) {
+                const delay = baseDelay * Math.pow(2, attempt - 1);
+                console.log(`⚠️  Retry ${attempt}/${maxRetries} para ${url} após ${delay}ms (${error.code})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                continue; // Tenta novamente
+            }
+            
+            // Esgotou tentativas ou erro não é de timeout/abort
+            return {
+                url,
+                status: 0,
+                statusText: error.message,
+                isWorking: false,
+                error: error.code || 'UNKNOWN_ERROR',
+                retriesAttempted: attempt,
+                // Adicionar informações de contexto se disponíveis
+                ...(linkContext.type && {
+                    context: {
+                        type: linkContext.type,
+                        element: linkContext.element,
+                        attribute: linkContext.attribute,
+                        text: linkContext.text,
+                        selector: linkContext.selector,
+                        position: linkContext.position,
+                        originalHref: linkContext.originalHref
+                    }
+                })
+            };
+        }
     }
 }
 
