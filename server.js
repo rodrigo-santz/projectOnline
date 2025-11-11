@@ -27,83 +27,17 @@ function isValidUrl(string) {
 async function checkLink(linkContext, timeout = 10000) {
     const url = linkContext.url || linkContext; // Compatibilidade com formato antigo
 
-    let attempts = 0;
-    let lastError = null;
-    while (attempts < 5) {
-        try {
-            const response = await axios.get(url, {
-                timeout,
-                validateStatus: function (status) {
-                    return true; // Retorna qualquer status para análise
-                },
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                },
-                maxRedirects: 5 // Permitir redirecionamentos
-            });
-            // ...existing code...
-            // Verificar se houve redirecionamento para URLs suspeitas
-            const finalUrl = response.request.res.responseUrl || url;
-            const urlAnalysis = analyzeUrl(finalUrl, url);
-            // Começar assumindo que está funcionando se o status HTTP for bom
-            let isWorking = response.status >= 200 && response.status < 400;
-            let additionalInfo = {};
-            // Só fazer análise de conteúdo se o status for bom
-            if (isWorking) {
-                const cheerio = require('cheerio');
-                const $ = cheerio.load(response.data);
-                const pageAnalysis = analyzePageContent($, response.data, finalUrl);
-                // ...existing code...
-            }
-            return {
-                url,
-                finalUrl: finalUrl !== url ? finalUrl : undefined,
-                status: response.status,
-                statusText: response.statusText,
-                isWorking,
-                responseTime: Date.now(),
-                ...additionalInfo,
-                ...(linkContext.type && {
-                    context: {
-                        type: linkContext.type,
-                        element: linkContext.element,
-                        attribute: linkContext.attribute,
-                        text: linkContext.text,
-                        selector: linkContext.selector,
-                        position: linkContext.position,
-                        originalHref: linkContext.originalHref
-                    }
-                })
-            };
-        } catch (error) {
-            lastError = error;
-            if (error.code === 'ECONNABORTED') {
-                attempts++;
-                continue; // Tenta novamente
-            } else {
-                break; // Outro erro, não tenta novamente
-            }
-        }
-    }
-    // Se chegou aqui, todas as tentativas falharam
-    return {
-        url,
-        status: 0,
-        statusText: lastError ? lastError.message : 'Erro desconhecido',
-        isWorking: false,
-        error: lastError ? lastError.code || 'UNKNOWN_ERROR' : 'UNKNOWN_ERROR',
-        ...(linkContext.type && {
-            context: {
-                type: linkContext.type,
-                element: linkContext.element,
-                attribute: linkContext.attribute,
-                text: linkContext.text,
-                selector: linkContext.selector,
-                position: linkContext.position,
-                originalHref: linkContext.originalHref
-            }
-        })
-    };
+    try {
+        const response = await axios.get(url, {
+            timeout,
+            validateStatus: function (status) {
+                return true; // Retorna qualquer status para análise
+            },
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            },
+            maxRedirects: 5 // Permitir redirecionamentos
+        });
 
         // Verificar se houve redirecionamento para URLs suspeitas
         const finalUrl = response.request.res.responseUrl || url;
@@ -207,7 +141,27 @@ async function checkLink(linkContext, timeout = 10000) {
                 }
             })
         };
-    // ...o bloco de retry já trata os erros e retorna o resultado adequado...
+    } catch (error) {
+        return {
+            url,
+            status: 0,
+            statusText: error.message,
+            isWorking: false,
+            error: error.code || 'UNKNOWN_ERROR',
+            // Adicionar informações de contexto se disponíveis
+            ...(linkContext.type && {
+                context: {
+                    type: linkContext.type,
+                    element: linkContext.element,
+                    attribute: linkContext.attribute,
+                    text: linkContext.text,
+                    selector: linkContext.selector,
+                    position: linkContext.position,
+                    originalHref: linkContext.originalHref
+                }
+            })
+        };
+    }
 }
 
 // Função para analisar se uma URL é suspeita (indicando busca vazia ou erro)
@@ -233,50 +187,50 @@ function analyzeUrl(finalUrl, originalUrl) {
             analysis.suspiciousIndicators.push(`Redirecionamento: ${originalUrl} → ${finalUrl}`);
         }
 
-        // Padrões MUITO específicos que indicam problemas reais - apenas caminhos completos
+        // Padrões MUITO específicos que indicam problemas reais - qualquer parte do caminho
         const highlySpecificPatterns = [
-            // Busca vazia - apenas padrões de caminho completo
-            '/buscavazia',
-            '/busca-vazia',
-            '/busca_vazia',
-            '/search-empty',
-            '/search_empty',
-            '/empty-search',
-            '/empty_search',
-            '/no-results',
-            '/no_results',
-            '/sem-resultado',
-            '/sem_resultado',
-            '/resultado-vazio',
-            '/resultado_vazio',
+            // Busca vazia - qualquer parte do caminho
+            'buscavazia',
+            'busca-vazia',
+            'busca_vazia',
+            'search-empty',
+            'search_empty',
+            'empty-search',
+            'empty_search',
+            'no-results',
+            'no_results',
+            'sem-resultado',
+            'sem_resultado',
+            'resultado-vazio',
+            'resultado_vazio',
 
-            // Erros 404 específicos - apenas arquivos/caminhos de erro
-            '/page-not-found',
-            '/page_not_found',
-            '/pagina-nao-encontrada',
-            '/pagina_nao_encontrada',
-            '/notfound',
-            '/404.html',
-            '/404.php',
-            '/404/',
+            // Erros 404 específicos - qualquer parte do caminho
+            'page-not-found',
+            'page_not_found',
+            'pagina-nao-encontrada',
+            'pagina_nao_encontrada',
+            'notfound',
+            '404.html',
+            '404.php',
+            '404/',
 
-            // Erros de sistema específicos - apenas caminhos de erro
-            '/erro/',
-            '/error/',
-            '/internal-error',
-            '/server-error',
-            '/service-unavailable',
-            '/manutencao.html',
-            '/maintenance.html',
-            '/offline.html',
+            // Erros de sistema específicos - qualquer parte do caminho
+            'erro/',
+            'error/',
+            'internal-error',
+            'server-error',
+            'service-unavailable',
+            'manutencao.html',
+            'maintenance.html',
+            'offline.html',
 
-            // Acesso negado específico - apenas caminhos
-            '/access-denied',
-            '/access_denied',
-            '/acesso-negado',
-            '/acesso_negado',
-            '/forbidden.html',
-            '/unauthorized.html'
+            // Acesso negado específico - qualquer parte do caminho
+            'access-denied',
+            'access_denied',
+            'acesso-negado',
+            'acesso_negado',
+            'forbidden.html',
+            'unauthorized.html'
         ];
 
         // Verificar padrões APENAS no caminho da URL (não em toda URL)

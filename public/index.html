@@ -122,9 +122,9 @@
                                     </div>
                                     <div class="monitoring-settings">
                                         <label class="monitoring-toggle">
-                                            <input type="checkbox" id="autoMonitoring" checked class="d-none"
+                                            <input type="checkbox" id="autoMonitoring"
                                                 onchange="toggleAutoMonitoring()">
-                                            <span class="toggle-text d-none">🕐 Verificação automática (1h)</span>
+                                            <span class="toggle-text">🕐 Verificação automática (1h)</span>
                                         </label>
                                     </div>
                                 </div>
@@ -174,29 +174,22 @@
                                 </div>
 
                                 <div class="options">
-                                    <label class="checkbox-container">
-                                        <input type="checkbox" id="checkExternal" checked class="d-none">
+                                    <label class="checkbox-container d-none">
+                                        <input type="checkbox" id="checkExternal" checked>
                                         <span class="checkmark"></span>
-                                        <span class="d-none">Verificar links externos também</span>
+                                        Verificar links externos também
                                     </label>
 
-                                    <div class="max-links">
+                                    <div class="max-links d-none">
                                         <label for="maxLinks">Máximo de links:</label>
                                         <select id="maxLinks">
                                             <option value="25">25</option>
-                                            <option value="50" selected>50</option>
+                                            <option value="50">50</option>
                                             <option value="100">100</option>
                                             <option value="200">200</option>
-                                            <option value="unlimited">🚀 Ilimitado</option>
+                                            <option value="unlimited" selected>🚀 Ilimitado</option>
                                         </select>
                                     </div>
-                                </div>
-
-                                <div class="unlimited-warning" id="unlimitedWarning" style="display: none;">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <strong>Modo Ilimitado:</strong> Esta opção verificará TODOS os links encontrados na
-                                    página.
-                                    Pode demorar mais tempo para sites com muitos links.
                                 </div>
                             </form>
                         </div>
